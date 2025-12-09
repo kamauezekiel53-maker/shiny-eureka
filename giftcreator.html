@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create Your Gift 💖</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --card: #121729;
+      --text: #e9ecf5;
+      --muted: #a9b3c9;
+      --accent1: #9b5cff;
+      --accent2: #ff6ec7;
+      --success: #22c55e;
+      --shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(255, 110, 199, 0.15) 0%, transparent 60%), 
+                  radial-gradient(900px 500px at -10% 110%, rgba(155, 92, 255, 0.12) 0%, transparent 60%), var(--bg);
+      color: var(--text); min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    }
+    .card {
+      width: 100%; max-width: 520px; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; box-shadow: var(--shadow);
+      backdrop-filter: blur(8px); padding: 22px;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 16px; }
+    .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin: 16px 0 8px; }
+    input[type="text"], input[type="url"], input[type="tel"] {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(9, 13, 24, 0.55); color: var(--text); outline: none; transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus { border-color: var(--accent1); box-shadow: 0 0 0 3px rgba(155,92,255,0.25); }
+    .row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+    .check { display: flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--muted); }
+    .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    button {
+      border: none; padding: 12px 14px; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;
+    }
+    .gen {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      box-shadow: 0 10px 30px rgba(155,92,255,0.35);
+    }
+    .copy {
+      background: var(--success);
+      box-shadow: 0 10px 30px rgba(34,197,94,0.35);
+    }
+    .linkbox {
+      margin-top: 16px; width: 100%; min-height: 48px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.18);
+      padding: 12px; color: var(--muted); word-break: break-all; background: rgba(9,13,24,0.45);
+    }
+    footer { margin-top: 16px; color: var(--muted); font-size: 0.85rem; text-align: center; }
+    .tip { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+    .small { font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Your Gift 💖</h1>
+    <p class="sub">Make a personalized poem page with optional YouTube video and WhatsApp reaction.</p>
+
+    <label>Your name</label>
+    <input id="sender" type="text" placeholder="e.g. Eunice" />
+
+    <label>Friend's name</label>
+    <input id="friend" type="text" placeholder="e.g. Grace" />
+
+    <label>YouTube link (optional)</label>
+    <input id="yt" type="url" placeholder="e.g. https://youtu.be/euCqAq6BRa4" />
+
+    <label>Friend's WhatsApp number (optional)</label>
+    <input id="wa" type="tel" placeholder="e.g. 2547XXXXXXXXX" />
+
+    <div class="check">
+      <input id="autoplay" type="checkbox" />
+      <span>Autoplay video</span>
+    </div>
+
+    <div class="btns">
+      <button class="gen" id="gen">✨ Generate link</button>
+      <button class="copy" id="copy" disabled>📋 Copy link</button>
+    </div>
+
+    <div class="linkbox" id="out">Your link will appear here…</div>
+
+    <p class="tip">Share only the generated link. Your friend will see the gift page, not this creator page.</p>
+    <footer>Made with love and stars • You</footer>
+  </div>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    const originGuess = () => {
+      // Use current folder path for gift.html
+      const url = new URL(window.location.href);
+      const base = url.href.substring(0, url.href.lastIndexOf('/'));
+      return base + '/gift.html';
+    };
+
+    function encodeParams() {
+      const params = new URLSearchParams();
+      const s = el('sender').value.trim();
+      const f = el('friend').value.trim();
+      if (!s || !f) { alert('Please fill both names.'); return; }
+      params.set('s', s);
+      params.set('f', f);
+      const yt = el('yt').value.trim();
+      if (yt) params.set('yt', yt);
+      const wa = el('wa').value.trim();
+      if (wa) params.set('wa', wa);
+      params.set('auto', el('autoplay').checked ? '1' : '0');
+
+      // Add a simple token so links are unique
+      params.set('t', Math.random().toString(36).slice(2, 10));
+      return params.toString();
+    }
+
+    el('gen').addEventListener('click', () => {
+      const p = encodeParams();
+      if (!p) return;
+      const link = originGuess() + '?' + p;
+      el('out').textContent = link;
+      el('copy').disabled = false;
+    });
+
+    el('copy').addEventListener('click', async () => {
+      const text = el('out').textContent.trim();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        el('copy').textContent = '✅ Copied';
+        setTimeout(() => el('copy').textContent = '📋 Copy link', 1500);
+      } catch (e) {
+        alert('Copy failed. Long-press the link to copy manually.');
+      }
+    });
+  </script>
+</body>
+      </html>
